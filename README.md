@@ -33,10 +33,12 @@ that is optional — without it the server runs in **signaling-only** mode (pair
 call setup work; no live audio).
 
 Multiple WhatsApp accounts can be paired and operated side by side, each with its own
-pairing QR, connection status, call manager, and history.
+pairing QR, connection status, and history. A single account can also run **several
+concurrent 1:1 calls** at once — one per browser operator — routed independently by call ID.
 
 > **Status:** stable. Outgoing and incoming 1:1 calls reach `ACTIVE` with bidirectional
-> audio. Sessions persist in `wacalls.db` (pure-Go SQLite).
+> audio, and a single account can hold several of them concurrently. Sessions persist in
+> `wacalls.db` (pure-Go SQLite).
 
 ---
 
@@ -187,6 +189,7 @@ go run ./cmd/server -static client/dist -addr :8080
 | `-db` | `wacalls.db` | SQLite session database path |
 | `-static` | `client/dist` | Static client directory (optional) |
 | `-debug` | `false` | Verbose logging (includes whatsmeow's internal log) |
+| `-max-calls-per-session` | `8` | Max concurrent calls per session (`0` = unlimited) |
 
 ---
 
