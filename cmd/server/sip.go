@@ -253,10 +253,17 @@ func (s *SIPServer) runRTPRx(b *RTPBridge, callID string) {
 }
 
 func (s *SIPServer) broadcastPCMToCalls(pcm []float32) {
-	s.srv.sessions.mu.Lock()
-	defer s.srv.sessions.mu.Unlock()
-
+	if s == nil || s.srv == nil || s.srv.sessions == nil {
+		return
+	}
+	s.srv.sessions.mu.RLock()
+	sessionsCopy := make([]*Session, 0, len(s.srv.sessions.sessions))
 	for _, sess := range s.srv.sessions.sessions {
+		sessionsCopy = append(sessionsCopy, sess)
+	}
+	s.srv.sessions.mu.RUnlock()
+
+	for _, sess := range sessionsCopy {
 		if sess.reg == nil {
 			continue
 		}
