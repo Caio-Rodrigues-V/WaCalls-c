@@ -147,7 +147,7 @@ func (s *SIPServer) handleSIPMessage(msg string, remoteHost string) string {
 	}
 
 	buildResponse := func(code int, text string, body string) string {
-		resp := fmt.Sprintf("SIP/2.0 %d %s\r\nVia: %s\r\nFrom: %s\r\nTo: %s;tag=wacalls123\r\nCall-ID: %s\r\nCSeq: %s\r\nServer: WaCalls-SIP/1.0\r\nContent-Type: application/sdp\r\nContent-Length: %d\r\n\r\n%s",
+		resp := fmt.Sprintf("SIP/2.0 %d %s\r\nVia: %s\r\nFrom: %s\r\nTo: %s;tag=wacalls123\r\nCall-ID: %s\r\nCSeq: %s\r\nContact: <sip:wacalls@tokaido.proxy.rlwy.net:48988;transport=tcp>\r\nServer: WaCalls-SIP/1.0\r\nContent-Type: application/sdp\r\nContent-Length: %d\r\n\r\n%s",
 			code, text, via, from, to, callID, cseq, len(body), body)
 		return resp
 	}
