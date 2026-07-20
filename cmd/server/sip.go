@@ -28,6 +28,11 @@ type RTPBridge struct {
 }
 
 func startSIPServer(ctx context.Context, addr string, srv *server, log *slog.Logger) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Warn("SIP Server panic recovered", "err", r)
+		}
+	}()
 	sip := &SIPServer{
 		addr:       addr,
 		log:        log,
