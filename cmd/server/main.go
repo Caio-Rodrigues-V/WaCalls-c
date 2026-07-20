@@ -22,8 +22,16 @@ func main() {
 			defaultAddr = p
 		}
 	}
+	defaultSipAddr := ":5070"
+	if sp := os.Getenv("SIP_PORT"); sp != "" {
+		if !strings.HasPrefix(sp, ":") {
+			defaultSipAddr = ":" + sp
+		} else {
+			defaultSipAddr = sp
+		}
+	}
 	addr := flag.String("addr", defaultAddr, "HTTP listen address")
-	sipAddr := flag.String("sip-addr", ":5060", "SIP listen address")
+	sipAddr := flag.String("sip-addr", defaultSipAddr, "SIP listen address")
 	dbPath := flag.String("db", "wacalls.db", "SQLite session database path")
 	staticDir := flag.String("static", "client/dist", "static client directory (optional)")
 	debug := flag.Bool("debug", false, "verbose logging")
