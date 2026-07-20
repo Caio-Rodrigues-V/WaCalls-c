@@ -45,6 +45,11 @@ func startSIPServer(ctx context.Context, addr string, srv *server, log *slog.Log
 }
 
 func (s *SIPServer) listenUDP(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.log.Error("listenUDP panic recovered", "err", r)
+		}
+	}()
 	conn, err := net.ListenPacket("udp", s.addr)
 	if err != nil {
 		s.log.Warn("SIP UDP listen warning", "addr", s.addr, "err", err)
@@ -65,8 +70,12 @@ func (s *SIPServer) listenUDP(ctx context.Context) {
 				continue
 			}
 			reqStr := string(buf[:n])
-			respStr := s.handleSIPMessage(reqStr, remoteAddr.String())
-			if respStr != "" {
+			remoteStr := ""
+			if remoteAddr != nil {
+				remoteStr = remoteAddr.String()
+			}
+			respStr := s.handleSIPMessage(reqStr, remoteStr)
+			if respStr != "" && remoteAddr != nil {
 				_, _ = conn.WriteTo([]byte(respStr), remoteAddr)
 			}
 		}
@@ -74,6 +83,11 @@ func (s *SIPServer) listenUDP(ctx context.Context) {
 }
 
 func (s *SIPServer) listenTCP(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.log.Error("listenTCP panic recovered", "err", r)
+		}
+	}()
 	listener, err := net.Listen("tcp", s.addr)
 	if err != nil {
 		s.log.Warn("SIP TCP listen warning", "addr", s.addr, "err", err)
@@ -98,6 +112,11 @@ func (s *SIPServer) listenTCP(ctx context.Context) {
 }
 
 func (s *SIPServer) handleTCPConn(conn net.Conn) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.log.Error("handleTCPConn panic recovered", "err", r)
+		}
+	}()
 	defer conn.Close()
 	r := bufio.NewReader(conn)
 	buf := make([]byte, 4096)
@@ -108,7 +127,11 @@ func (s *SIPServer) handleTCPConn(conn net.Conn) {
 			break
 		}
 		reqStr := string(buf[:n])
-		respStr := s.handleSIPMessage(reqStr, conn.RemoteAddr().String())
+		remoteStr := ""
+		if conn.RemoteAddr() != nil {
+			remoteStr = conn.RemoteAddr().String()
+		}
+		respStr := s.handleSIPMessage(reqStr, remoteStr)
 		if respStr != "" {
 			_, _ = conn.Write([]byte(respStr))
 		}
