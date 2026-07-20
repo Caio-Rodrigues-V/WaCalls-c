@@ -8,12 +8,21 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
 
 func main() {
-	addr := flag.String("addr", ":8080", "HTTP listen address")
+	defaultAddr := ":8080"
+	if p := os.Getenv("PORT"); p != "" {
+		if !strings.HasPrefix(p, ":") {
+			defaultAddr = ":" + p
+		} else {
+			defaultAddr = p
+		}
+	}
+	addr := flag.String("addr", defaultAddr, "HTTP listen address")
 	sipAddr := flag.String("sip-addr", ":5060", "SIP listen address")
 	dbPath := flag.String("db", "wacalls.db", "SQLite session database path")
 	staticDir := flag.String("static", "client/dist", "static client directory (optional)")
